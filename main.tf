@@ -28,13 +28,13 @@ resource "vsphere_virtual_machine" "nomad-vm" {
         domain    = "${var.sub}.${var.domain}"
       }
 
-      network_interface = {}
     }
   }
 
   # https://www.terraform.io/docs/provisioners/connection.html#example-usage
   connection {
     type     = "ssh"
+    host     = self.guest_ip_addresses[0]
     user     = "ubuntu"
     password = "ubuntu"
   }
