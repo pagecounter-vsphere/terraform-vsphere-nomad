@@ -15,6 +15,10 @@ variable "domain" {
 variable "sub" {
 }
 
+variable "nomad_region" {
+  default = "global"
+}
+
 variable "folder" {
 }
 

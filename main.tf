@@ -63,6 +63,7 @@ resource "vsphere_virtual_machine" "nomad-vm" {
       "sudo -E bash /tmp/consul.sh",
       "unset LAN_JOIN",
       "export COUNT=${var.nomad_count}",
+      "export REGION=${var.nomad_region}",
       "export WAN_JOIN='${var.nomad_wan_join}'",
       "curl -sLo /tmp/nomad.sh https://raw.githubusercontent.com/kikitux/curl-bash/master/nomad-server/nomad.sh",
       "sudo -E bash /tmp/nomad.sh",
