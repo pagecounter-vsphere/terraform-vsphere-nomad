@@ -1,5 +1,5 @@
 locals {
-  server_name = "nomad-${var.dc}"
+  nomad_server = join(",", formatlist("\"nomad%02d-${var.dc}.${var.sub}.${var.domain}\"", range(1, 1 + var.nomad_count)))
 }
 
 data "vsphere_virtual_machine" "template" {
@@ -8,7 +8,8 @@ data "vsphere_virtual_machine" "template" {
 }
 
 resource "vsphere_virtual_machine" "nomad-vm" {
-  name             = local.server_name
+  count            = var.nomad_count
+  name             = "${format("nomad%02d", count.index + 1)}-${var.dc}"
   folder           = var.folder
   resource_pool_id = var.resource_pool_id
   datastore_id     = var.datastore_id
@@ -22,7 +23,7 @@ resource "vsphere_virtual_machine" "nomad-vm" {
     linked_clone  = true
     customize {
       linux_options {
-        host_name = local.server_name
+        host_name = "${format("nomad%02d", count.index + 1)}-${var.dc}"
         domain    = "${var.sub}.${var.domain}"
       }
       network_interface {
@@ -58,12 +59,13 @@ resource "vsphere_virtual_machine" "nomad-vm" {
       "GITHUB_USER=kikitux bash /tmp/public_keys.sh",
       "export DC=${var.dc}",
       "export IFACE=ens160",
-      "export LAN_JOIN=${var.consul_lan_join}",
+      "export LAN_JOIN='${var.consul_lan_join}'",
       "curl -sLo /tmp/consul.sh https://raw.githubusercontent.com/kikitux/curl-bash/master/consul-client/consul.sh",
       "sudo -E bash /tmp/consul.sh",
       "unset LAN_JOIN",
-      "export WAN_JOIN=${var.nomad_wan_join}",
-      "curl -sLo /tmp/nomad.sh https://raw.githubusercontent.com/kikitux/curl-bash/master/nomad-1server/nomad.sh",
+      "export COUNT=${var.nomad_count * var.dc_count}",
+      "export WAN_JOIN='${var.nomad_wan_join}'",
+      "curl -sLo /tmp/nomad.sh https://raw.githubusercontent.com/kikitux/curl-bash/master/nomad-server/nomad.sh",
       "sudo -E bash /tmp/nomad.sh",
       "curl -sLo /tmp/node_exporter.sh https://raw.githubusercontent.com/kikitux/curl-bash/master/provision/node_exporter.sh",
       "sudo -E bash /tmp/node_exporter.sh",
@@ -72,10 +74,22 @@ resource "vsphere_virtual_machine" "nomad-vm" {
 }
 
 output "guest_ip_address" {
-  value = vsphere_virtual_machine.nomad-vm.guest_ip_addresses[0]
+  value = vsphere_virtual_machine.nomad-vm.0.guest_ip_addresses
 }
 
 output "name" {
-  value = local.server_name
+  value = vsphere_virtual_machine.nomad-vm.0.name
+}
+
+output "guest_ip_addresses" {
+  value = vsphere_virtual_machine.nomad-vm.*.guest_ip_addresses
+}
+
+output "names" {
+  value = vsphere_virtual_machine.nomad-vm.*.name
+}
+
+output "nomad_server" {
+  value = local.nomad_server
 }
 
