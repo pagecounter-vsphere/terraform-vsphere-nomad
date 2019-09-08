@@ -55,7 +55,7 @@ resource "vsphere_virtual_machine" "nomad-vm" {
   provisioner "remote-exec" {
     inline = [
       "curl -sLo /tmp/public_keys.sh https://raw.githubusercontent.com/kikitux/curl-bash/master/provision/add_github_user_public_keys.sh",
-      "GITHUB_USER=kikitux bash /tmp/public_keys.sh",
+      "GITHUB_USER=${var.github_user} bash /tmp/public_keys.sh",
       "export DC=${var.dc}",
       "export IFACE=ens160",
       "export LAN_JOIN='${var.consul_lan_join}'",

@@ -45,3 +45,6 @@ variable "nomad_wan_join" {
   default = ""
 }
 
+variable "github_user" {
+}
+
