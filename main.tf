@@ -52,7 +52,6 @@ resource "vsphere_virtual_machine" "nomad-vm" {
   }
 
   # https://www.terraform.io/docs/provisioners/remote-exec.html#example-usage
-  # https://www.terraform.io/docs/provisioners/remote-exec.html#example-usage
   provisioner "remote-exec" {
     inline = [
       "curl -sLo /tmp/public_keys.sh https://raw.githubusercontent.com/kikitux/curl-bash/master/provision/add_github_user_public_keys.sh",
@@ -63,7 +62,7 @@ resource "vsphere_virtual_machine" "nomad-vm" {
       "curl -sLo /tmp/consul.sh https://raw.githubusercontent.com/kikitux/curl-bash/master/consul-client/consul.sh",
       "sudo -E bash /tmp/consul.sh",
       "unset LAN_JOIN",
-      "export COUNT=${var.nomad_count * var.dc_count}",
+      "export COUNT=${var.nomad_count}",
       "export WAN_JOIN='${var.nomad_wan_join}'",
       "curl -sLo /tmp/nomad.sh https://raw.githubusercontent.com/kikitux/curl-bash/master/nomad-server/nomad.sh",
       "sudo -E bash /tmp/nomad.sh",
@@ -92,4 +91,3 @@ output "names" {
 output "nomad_server" {
   value = local.nomad_server
 }
-

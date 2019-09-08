@@ -2,10 +2,6 @@ variable "nomad_count" {
   default = 1
 }
 
-variable "dc_count" {
-  default = 1
-}
-
 variable "datastore_id" {
 }
 
